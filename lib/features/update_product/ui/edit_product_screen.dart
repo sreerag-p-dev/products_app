@@ -36,116 +36,120 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => UpdateProductBloc(),
-      child: Builder(
-        builder: (context) {
-          return BlocListener<UpdateProductBloc, UpdateProductState>(
-            listenWhen: (previous, current) =>
-                previous.isUpdated != current.isUpdated,
-            listener: (context, state) {
-              if (state.isUpdated != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      state.isUpdated!
-                          ? "Product updated successfully"
-                          : "Failed to update product",
+      child: BlocListener<UpdateProductBloc, UpdateProductState>(
+        listenWhen: (previous, current) =>
+            previous.isUpdated != current.isUpdated,
+        listener: (context, state) {
+          if (state.isUpdated != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.isUpdated!
+                      ? "Product updated successfully"
+                      : "Failed to update product",
+                ),
+              ),
+            );
+
+            if (state.isUpdated!) {
+              Navigator.pop(context);
+            }
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(title: const Text("Edit Product")),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    /// Product Image
+                    Center(
+                      child: Image.network(
+                        widget.product.thumbnail ?? "",
+                        height: 200,
+                      ),
                     ),
-                  ),
-                );
+                    TextFormField(
+                      controller: titleController,
+                      decoration: const InputDecoration(labelText: "Title"),
+                      validator: (value) =>
+                          value!.isEmpty ? "Enter title" : null,
+                    ),
 
-                if (state.isUpdated!) {
-                  Navigator.pop(context);
-                }
-              }
-            },
-            child: Scaffold(
-              appBar: AppBar(title: const Text("Edit Product")),
-              body: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      /// Product Image
-                      Center(
-                        child: Image.network(
-                          widget.product.thumbnail ?? "",
-                          height: 200,
-                        ),
+                    const SizedBox(height: 20),
+
+                    TextFormField(
+                      controller: priceController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: "Price"),
+                      validator: (value) =>
+                          value!.isEmpty ? "Enter price" : null,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    TextFormField(
+                      controller: descriptionController,
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        labelText: "Description",
                       ),
-                      TextFormField(
-                        controller: titleController,
-                        decoration: const InputDecoration(labelText: "Title"),
-                        validator: (value) =>
-                            value!.isEmpty ? "Enter title" : null,
-                      ),
+                    ),
 
-                      const SizedBox(height: 20),
+                    const SizedBox(height: 40),
 
-                      TextFormField(
-                        controller: priceController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: "Price"),
-                        validator: (value) =>
-                            value!.isEmpty ? "Enter price" : null,
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      TextFormField(
-                        controller: descriptionController,
-                        maxLines: 3,
-                        decoration: const InputDecoration(
-                          labelText: "Description",
-                        ),
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.amber, // button color
-                            foregroundColor: Colors.black, // text color
+                    BlocSelector<UpdateProductBloc, UpdateProductState, bool>(
+                      selector: (state) {
+                        return state.isLoading;
+                      },
+                      builder: (context, loading) {
+                        return SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber,
+                              foregroundColor: Colors.black,
+                            ),
+                            onPressed: loading
+                                ? null
+                                : () {
+                                    if (_formKey.currentState!.validate()) {
+                                      context.read<UpdateProductBloc>().add(
+                                        CallUpdateProductEvent(
+                                          productId: widget.product.id
+                                              .toString(),
+                                          title: titleController.text,
+                                          price: priceController.text,
+                                          description:
+                                              descriptionController.text,
+                                        ),
+                                      );
+                                    }
+                                  },
+                            child: loading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text("Update Product"),
                           ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              context.read<UpdateProductBloc>().add(
-                                CallUpdateProductEvent(
-                                  productId: widget.product.id.toString(),
-                                  title: titleController.text,
-                                  price: priceController.text,
-                                  description: descriptionController.text,
-                                ),
-                              );
-                            }
-                          },
-                          child:
-                              BlocSelector<
-                                UpdateProductBloc,
-                                UpdateProductState,
-                                bool
-                              >(
-                                selector: (state) {
-                                  return state.isLoading;
-                                },
-                                builder: (context, loading) {
-                                  return loading
-                                      ? CircularProgressIndicator()
-                                      : const Text("Update Product");
-                                },
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
