@@ -14,12 +14,16 @@ class ProductDetailsBloc
   }
   final ApiServices _apiServices = ApiServices();
 
-  Future<void> _fetchProductDetails(FetchProductDetailsEvent event, emit) async {
+  Future<void> _fetchProductDetails(
+    FetchProductDetailsEvent event,
+    emit,
+  ) async {
     emit(state.copyWith(isLoading: true));
     try {
-      final ProductDetails? data = await _apiServices.fetchProductDetails(event.productId);
+      final ProductDetails? data = await _apiServices.fetchProductDetails(
+        event.productId,
+      );
       if (data != null) {
-        print("???????????????????????????????????????????????????????????????????");
         emit(state.copyWith(product: data));
       }
     } catch (e) {

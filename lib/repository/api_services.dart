@@ -35,4 +35,32 @@ class ApiServices {
     }
     return data;
   }
+
+  Future<bool> updateProduct({
+    required String productId,
+    required String title,
+    required String price,
+    required String description,
+  }) async {
+    String baseUrl = "https://dummyjson.com/products";
+    bool successStatus = false;
+    try {
+      final response = await http.put(
+        Uri.parse("$baseUrl/$productId"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "title": title,
+          "price": double.parse(price),
+          "description": description,
+        }),
+      );
+      if (response.statusCode == 200) {
+        debugPrint(response.body);
+        successStatus = true;
+      }
+    } catch (e) {
+      debugPrint("Api call failed : $e");
+    }
+    return successStatus;
+  }
 }

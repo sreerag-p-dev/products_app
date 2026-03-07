@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:productsapp/features/product_details/bloc/product_details_bloc.dart';
+import 'package:productsapp/features/update_product/ui/edit_product_screen.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final String productId;
@@ -25,9 +26,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-
+          final product = state.product!;
           return Scaffold(
-            appBar: AppBar(title: Text(state.product?.title ?? "Product")),
+            appBar: AppBar(title: Text(product.title ?? "Product")),
 
             body: Padding(
               padding: const EdgeInsets.all(20),
@@ -36,17 +37,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 children: [
                   /// Product Image
                   Center(
-                    child: Image.network(
-                      state.product?.thumbnail ?? "",
-                      height: 200,
-                    ),
+                    child: Image.network(product.thumbnail ?? "", height: 200),
                   ),
 
                   const SizedBox(height: 20),
 
                   /// Title
                   Text(
-                    state.product?.title ?? "",
+                    product.title ?? "",
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -57,7 +55,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
                   /// Price
                   Text(
-                    "\$${state.product?.price}",
+                    "\$${product.price}",
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -71,17 +69,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     "Description",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Text(state.product?.description ?? ""),
+                  Text(product.description ?? ""),
 
                   const SizedBox(height: 20),
 
-                  Text("Category: ${state.product?.category}"),
+                  Text("Category: ${product.category}"),
                   const SizedBox(height: 10),
 
-                  Text("Rating: ${state.product?.rating}"),
+                  Text("Rating: ${product.rating}"),
                   const SizedBox(height: 10),
 
-                  Text("Stock: ${state.product?.stock}"),
+                  Text("Stock: ${product.stock}"),
                   SizedBox(height: 30),
 
                   SizedBox(
@@ -93,7 +91,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         foregroundColor: Colors.black, // text color
                       ),
                       onPressed: () {
-                        /// TODO: edit screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                EditProductScreen(product: product),
+                          ),
+                        );
                       },
                       child: const Text(
                         "Edit Product",
